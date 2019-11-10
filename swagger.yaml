@@ -388,14 +388,14 @@ paths:
           \ Este parâmetro é incompatível com `rdate`.\n"
         required: false
         type: "string"
-        format: "date"
+        format: "date-time"
       - name: "end_date"
         in: "query"
         description: "A data final do relatório. Deve ser usado junto com o `start_date`.\n\
           \ Este parâmetro é incompatível com `rdate`.\n"
         required: false
         type: "string"
-        format: "date"
+        format: "date-time"
       - name: "event_type"
         in: "query"
         description: "Um tipo de evento para o relatorio.\n"
@@ -412,7 +412,6 @@ paths:
         400:
           description: "Erro"
       x-swagger-router-controller: "Event"
-      
   /partipant:
     post:
       tags:
@@ -449,7 +448,6 @@ paths:
         400:
           description: "Erro"
       x-swagger-router-controller: "Participant"
-
   /participant/{userId}:
     get:
       tags:
@@ -508,7 +506,7 @@ paths:
           description: "Sucesso"
         400:
           description: "Erro"
-      x-swagger-router-controller: "Participant"      
+      x-swagger-router-controller: "Participant"
   /mensagem:
     post:
       tags:
