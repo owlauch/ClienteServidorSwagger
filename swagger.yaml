@@ -2,7 +2,8 @@
 swagger: "2.0"
 info:
   description: "Facilitar a integração social de pessoas através de exercícios fí\
-    sicos feitos coletivamente"
+    sicos feitos coletivamente.
+    Toda data no sistema é no formato date-time"
   version: "1.0.0"
   title: "Honoo"
   termsOfService: "http://honoo.io/terms/"
@@ -52,7 +53,7 @@ paths:
                 type: "string"
               birthdate:
                 type: "string"
-                format: "date"
+                format: "date-time"
               sex:
                 type: "string"
                 example: "M | F"
@@ -120,7 +121,7 @@ paths:
                   type: "string"
                 birthdate:
                   type: "string"
-                  format: "date"
+                  format: "date-time"
                 sex:
                   type: "string"
                   example: "M | F"
@@ -233,35 +234,34 @@ paths:
         description: "Necessário um objeto Evento"
         required: true
         schema:
-            type: object
-            properties:
-              title:
-                type: string
-              startDate:
-                type: string
-                format: 'date-time'
-              endDate:
-                type: string
-                format: 'date-time'
-              street:
-                type: string
-              neighborhood:
-                type: string
-              city:
-                type: string
-              referencePoint:
-                type: string
-              description:
-                type: string
-              eventTypeId:
-                type: "integer"
-                format: "int64"
-              ownerId:
-                type: "integer"
-                format: "int64"
-              status:
-                type: boolean
-              
+          type: object
+          properties:
+            startDate:
+              type: string
+              format: 'date-time'
+            endDate:
+              type: string
+              format: 'date-time'
+            title:
+              type: string
+            street:
+              type: string
+            neighborhood:
+              type: string
+            city:
+              type: string
+            referencePoint:
+              type: string
+            description:
+              type: string
+            eventTypeId:
+              type: "integer"
+              format: "int64"
+            ownerId:
+              type: "integer"
+              format: "int64"
+            status:
+              type: boolean
       responses:
         200:
           description: "Sucesso"
@@ -376,29 +376,21 @@ paths:
       - "event"
       operationId: "eventSearchGET"
       parameters:
-      - name: "rdate"
-        in: "query"
-        description: "Um período relativo para o relatório, como \"Hoje\" ou \"Última\
-          \ semana\".\n Para um intervalo exato, use `start_date` e` end_date`.\n"
-        required: false
-        type: "string"
       - name: "start_date"
         in: "query"
-        description: "A data inicial do relatório. Deve ser usado junto com `end_date`.\
-          \ Este parâmetro é incompatível com `rdate`.\n"
+        description: "A data inicial do relatório. Deve ser usado junto com `end_date`.\n"
         required: false
         type: "string"
         format: "date-time"
       - name: "end_date"
         in: "query"
-        description: "A data final do relatório. Deve ser usado junto com o `start_date`.\n\
-          \ Este parâmetro é incompatível com `rdate`.\n"
+        description: "A data final do relatório. Deve ser usado junto com o `start_date`.\n"
         required: false
         type: "string"
         format: "date-time"
       - name: "event_type"
         in: "query"
-        description: "Um tipo de evento para o relatorio.\n"
+        description: "Um id de tipo de evento.\n"
         required: false
         type: "string"
         format: "string"
@@ -412,7 +404,7 @@ paths:
         400:
           description: "Erro"
       x-swagger-router-controller: "Event"
-  /partipant:
+  /participant:
     post:
       tags:
       - "participant"
@@ -426,7 +418,7 @@ paths:
       parameters:
       - in: "body"
         name: "body"
-        description: "Campos obrigatórios: username, email e password"
+        description: "registrationDate deve ser gravado com a data,hora do servidor"
         required: true
         schema:
             type: object
@@ -437,18 +429,13 @@ paths:
               eventoId:
                 type: "integer"
                 format: "int64"
-              subscriptionDate:
-                type: "string"
-                format: date-time
       responses:
         200:
           description: "Sucesso"
-          schema:
-            $ref: "#/definitions/User"
         400:
           description: "Erro"
       x-swagger-router-controller: "Participant"
-  /participant/{userId}:
+  /participant/{participantId}:
     get:
       tags:
       - "participant"
@@ -458,9 +445,9 @@ paths:
       produces:
       - "application/json"
       parameters:
-      - name: "userId"
+      - name: "participantId"
         in: "path"
-        description: "Id do usuario que quer retorno"
+        description: "Id do participante para consulta-lo"
         required: true
         type: "integer"
         format: "int64"
@@ -470,13 +457,16 @@ paths:
           schema:
               type: object
               properties:
-                participantId:
+                id:
+                  type: "integer"
+                  format: "int64"
+                userId:
                   type: "integer"
                   format: "int64"
                 eventoId:
                   type: "integer"
                   format: "int64"
-                subscriptionDate:
+                registrationDate:
                   type: "string"
                   format: date-time
         400:
@@ -485,7 +475,7 @@ paths:
     delete:
       tags:
       - "participant"
-      summary: "Deletar Usuario"
+      summary: "Deletar um participante"
       description: ""
       operationId: "deleteParticipant"
       produces:
@@ -495,9 +485,9 @@ paths:
         in: "header"
         required: false
         type: "string"
-      - name: "userId"
+      - name: "participantId"
         in: "path"
-        description: "Id do Usuario que deseja deletar"
+        description: "Id do participante que deseja deletar"
         required: true
         type: "integer"
         format: "int64"
@@ -521,14 +511,11 @@ paths:
       parameters:
       - in: "body"
         name: "body"
-        description: "Necessário um objeto Evento"
+        description: "Necessário um objeto Evento, a data da mensagem deve ser gravada com base na data e hora do servidor"
         required: true
         schema:
             type: object
             properties:
-              messageDate:
-                type: string
-                format: 'date-time'
               message:
                 type: string
               participantId:
@@ -544,7 +531,7 @@ paths:
       tags:
       - "mensagem"
       summary: "Atualizar uma mensagem"
-      description: ""
+      description: "A data da mensagem deve ser gravada com base na data e hora do servidor"
       operationId: "updateMessage"
       consumes:
       - "application/json"
@@ -561,14 +548,8 @@ paths:
               id:
                 type: "integer"
                 format: "int64"
-              messageDate:
-                type: string
-                format: 'date-time'
               message:
                 type: string
-              participantId:
-                type: "integer"
-                format: "int64"
       responses:
         200:
           description: "Sucesso"
@@ -589,17 +570,17 @@ paths:
         400:
           description: "Erro"
       x-swagger-router-controller: "Mensagem"
-  /mensages/{participantId}:
+  /mensagem/evento/{eventId}:
     get:
       tags:
       - "mensagem"
-      summary: "Retorna todas as mensagens do participante do evento"
-      description: "Retorna apenas o tipo de evento do mesmo id enviado"
+      summary: "Retorna todas as mensagens do evento"
+      description: "Retorna todas as mensagens do id do evento enviado"
       operationId: "getMensagemById"
       produces:
       - "application/json"
       parameters:
-      - name: "participantId"
+      - name: "eventId"
         in: "path"
         description: "Id do Evento que quer retorno"
         required: true
@@ -609,19 +590,23 @@ paths:
         200:
           description: "Sucesso"
           schema:
-            type: object
-            properties:
-              id:
-                type: "integer"
-                format: "int64"
-              messageDate:
-                type: string
-                format: 'date-time'
-              message:
-                type: string
-              participantId:
-                type: "integer"
-                format: "int64"
+            type: "array"
+            items:
+              type: object
+              properties:
+                id:
+                  type: "integer"
+                  format: "int64"
+                userId:
+                  type: "integer"
+                  format: "int64"
+                username:
+                  type: string
+                messageDate:
+                  type: string
+                  format: 'date-time'
+                message:
+                  type: string
         400:
           description: "Erro"
       x-swagger-router-controller: "Mensagem"
@@ -629,7 +614,7 @@ paths:
     delete:
       tags:
       - "mensagem"
-      summary: "Deletar Algum Mensagem"
+      summary: "Deletar Alguma mensagem"
       description: ""
       operationId: "deleteMensagem"
       produces:
@@ -676,13 +661,17 @@ paths:
 definitions:
   Message:
     type: "object"
+    required:
+    - "participant"
+    - "messageDate"
+    - "message"
     properties:
       Id:
         type: "integer"
         format: "int64"
       participant:
         $ref: "#/definitions/Participant"
-      date:
+      messageDate:
         type: "string"
         format: "date-time"
       message:
@@ -723,14 +712,24 @@ definitions:
           username: "username"
   login:
     type: "object"
+    required:
+    - "email"
+    - "password"
     properties:
-      login:
+      email:
         type: "string"
-      senha:
+      password:
         type: "string"
   Participant:
     type: "object"
+    required:
+    - "event"
+    - "user"
+    - "registrationDate"
     properties:
+      id:
+        type: "integer"
+        format: "int64"
       event:
         $ref: "#/definitions/Event"
       user:
@@ -803,14 +802,14 @@ definitions:
         type: "string"
       birthdate:
         type: "string"
-        format: "date"
+        format: "date-time"
       sex:
         type: "string"
     example:
       password: "password"
-      birthdate: "2000-01-23"
       sex: "sex"
       id: 0
+      birthdate: "2019-11-07T12:00:00.000Z"
       email: "email"
       username: "username"
   Event:
@@ -823,6 +822,7 @@ definitions:
     - "startDate"
     - "street"
     - "title"
+    - "user"
     properties:
       participant:
         type: "array"
@@ -834,7 +834,7 @@ definitions:
               format: "int64"
             username:
               type: string
-            subscriptionDate:
+            registrationDate:
               type: string
               format: date-time
       id:
@@ -870,7 +870,7 @@ definitions:
         [{
           id: 0,
           username: "nome",
-          subscriptionDate: "2019-11-07T18:46:29.648Z"
+          registrationDate: "2019-11-07T18:46:29.648Z"
         }
           ]
       endDate: "2019-11-07T18:46:29.648Z"
@@ -884,7 +884,6 @@ definitions:
         id: 6
       title: "Corrida das 18h"
       user:
-        password: "password"
         birthdate: "2000-01-23"
         sex: "sex"
         id: 0
