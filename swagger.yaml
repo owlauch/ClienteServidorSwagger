@@ -2,8 +2,7 @@
 swagger: "2.0"
 info:
   description: "Facilitar a integração social de pessoas através de exercícios fí\
-    sicos feitos coletivamente.
-    Toda data no sistema é no formato date-time"
+    sicos feitos coletivamente. Toda data no sistema é no formato date-time"
   version: "1.0.0"
   title: "Honoo"
   termsOfService: "http://honoo.io/terms/"
@@ -76,12 +75,30 @@ paths:
       produces:
       - "application/json"
       parameters:
+      - in: "header"
+        type: "string"
+        name: "token"
+        description: "Deve ser o token do usuário que está efetuando a requisição \n O token deve ser exclusivo de cada usuário.\n Somente o token do próprio usuário pode fazer a sua alteração de cadastro."
+        required: true
       - in: "body"
         name: "body"
-        description: ""
+        description: "Campos obrigatórios: username, email e password"
         required: true
         schema:
-          $ref: "#/definitions/User"
+            type: object
+            properties:
+              username:
+                type: "string"
+              email:
+                type: "string"
+              password:
+                type: "string"
+              birthdate:
+                type: "string"
+                format: "date-time"
+              sex:
+                type: "string"
+                example: "M | F"
       responses:
         200:
           description: "Sucesso"
@@ -100,6 +117,11 @@ paths:
       produces:
       - "application/json"
       parameters:
+      - in: "header"
+        type: "string"
+        name: "token"
+        description: "Deve ser o token do usuário que está efetuando a requisição \n O token deve ser exclusivo de cada usuário.\n Qualquer token de usuário válido pode consultar um cadastro de usuário"
+        required: true
       - name: "userId"
         in: "path"
         description: "Id do usuario que quer retorno"
@@ -137,10 +159,11 @@ paths:
       produces:
       - "application/json"
       parameters:
-      - name: "api_key"
-        in: "header"
-        required: false
+      - in: "header"
         type: "string"
+        name: "token"
+        description: "Deve ser o token do usuário que está efetuando a requisição \n O token deve ser exclusivo de cada usuário.\n Somente o token do próprio usuário pode fazer a sua exclusão."
+        required: true
       - name: "userId"
         in: "path"
         description: "Id do Usuario que deseja deletar"
@@ -179,22 +202,29 @@ paths:
       responses:
         200:
           description: "Sucesso"
-          headers:
-            X-Rate-Limit:
-              type: "integer"
-              format: "int32"
-              description: "calls per hour allowed by the user"
-            X-Expires-After:
-              type: "string"
-              format: "date-time"
-              description: "date in UTC when token expires"
           schema:
             type: object
             properties:
               token:
                 type: string
               user:
-                $ref: "#/definitions/User"
+                type: object
+                properties:
+                  id:
+                    type: "integer"
+                    format: "int64"
+                  username:
+                    type: "string"
+                    example: "NomeDoUsuario"
+                  email:
+                    type: "string"
+                    example: "email@do.usuario"
+                  birthdate:
+                    type: "string"
+                    format: "date-time"
+                  sex:
+                    type: "string"
+                    example: "M | F"
         400:
           description: "Erro"
       x-swagger-router-controller: "User"
@@ -209,7 +239,12 @@ paths:
       - "application/json"
       produces:
       - "application/json"
-      parameters: []
+      parameters: 
+      - in: "header"
+        type: "string"
+        name: "token"
+        description: "Deve ser o token do usuário que está efetuando a requisição \n O token deve ser exclusivo de cada usuário.\n Qualquer token de usuário válido pode consultar os eventos"
+        required: true
       responses:
         200:
           description: "Sucesso"
@@ -231,6 +266,11 @@ paths:
       produces:
       - "application/json"
       parameters:
+      - in: "header"
+        type: "string"
+        name: "token"
+        description: "Deve ser o token do usuário que está efetuando a requisição \n O token deve ser exclusivo de cada usuário.\n Qualquer token de usuário válido pode cadastrar um evento"
+        required: true
       - in: "body"
         name: "body"
         description: "Necessário um objeto Evento"
@@ -281,6 +321,11 @@ paths:
       produces:
       - "application/json"
       parameters:
+      - in: "header"
+        type: "string"
+        name: "token"
+        description: "Deve ser o token do usuário que está efetuando a requisição \n O token deve ser exclusivo de cada usuário.\n Somente o token de usuário/ownerId que cadastrou o usuário pode atualizar/alterar um evento."
+        required: true
       - in: "body"
         name: "body"
         description: ""
@@ -333,6 +378,11 @@ paths:
       produces:
       - "application/json"
       parameters:
+      - in: "header"
+        type: "string"
+        name: "token"
+        description: "Deve ser o token do usuário que está efetuando a requisição \n O token deve ser exclusivo de cada usuário.\n Qualquer token de usuário válido pode consultar um evento"
+        required: true
       - name: "eventId"
         in: "path"
         description: "Id do Evento que quer retorno"
@@ -356,10 +406,11 @@ paths:
       produces:
       - "application/json"
       parameters:
-      - name: "api_key"
-        in: "header"
-        required: false
+      - in: "header"
         type: "string"
+        name: "token"
+        description: "Deve ser o token do usuário que está efetuando a requisição \n O token deve ser exclusivo de cada usuário.\n Somente o token de usuário/ownerId que cadastrou o usuário pode deletar/excluir um evento."
+        required: true
       - name: "eventId"
         in: "path"
         description: "Id do Evento que deseja deletar"
@@ -378,6 +429,11 @@ paths:
       - "event"
       operationId: "eventSearchGET"
       parameters:
+      - in: "header"
+        type: "string"
+        name: "token"
+        description: "Deve ser o token do usuário que está efetuando a requisição \n O token deve ser exclusivo de cada usuário.\n Qualquer token de usuário válido pode consultar os eventos"
+        required: true
       - name: "start_date"
         in: "query"
         description: "A data inicial do relatório. Deve ser usado junto com `end_date`.\n"
@@ -418,6 +474,11 @@ paths:
       produces:
       - "application/json"
       parameters:
+      - in: "header"
+        type: "string"
+        name: "token"
+        description: "Deve ser o token do usuário que está efetuando a requisição \n O token deve ser exclusivo de cada usuário.\n Qualquer token de usuário válido pode cadastrar sua participação em um evento"
+        required: true
       - in: "body"
         name: "body"
         description: "registrationDate deve ser gravado com a data,hora do servidor"
@@ -447,6 +508,11 @@ paths:
       produces:
       - "application/json"
       parameters:
+      - in: "header"
+        type: "string"
+        name: "token"
+        description: "Deve ser o token do usuário que está efetuando a requisição \n O token deve ser exclusivo de cada usuário.\n Qualquer token de usuário válido pode consultar um participante"
+        required: true
       - name: "participantId"
         in: "path"
         description: "Id do participante para consulta-lo"
@@ -483,6 +549,11 @@ paths:
       produces:
       - "application/json"
       parameters:
+      - in: "header"
+        type: "string"
+        name: "token"
+        description: "Deve ser o token do usuário que está efetuando a requisição \n O token deve ser exclusivo de cada usuário.\n Somente o token de usuário/participante previamente cadastrado pode deletar/excluir um participante."
+        required: true
       - name: "api_key"
         in: "header"
         required: false
@@ -511,6 +582,11 @@ paths:
       produces:
       - "application/json"
       parameters:
+      - in: "header"
+        type: "string"
+        name: "token"
+        description: "Deve ser o token do usuário que está efetuando a requisição \n O token deve ser exclusivo de cada usuário.\n Somente o token de usuário/participante do participantId informado no body pode escrever a mensagem."
+        required: true
       - in: "body"
         name: "body"
         description: "Necessário um objeto Evento, a data da mensagem deve ser gravada com base na data e hora do servidor"
@@ -540,6 +616,11 @@ paths:
       produces:
       - "application/json"
       parameters:
+      - in: "header"
+        type: "string"
+        name: "token"
+        description: "Deve ser o token do usuário que está efetuando a requisição \n O token deve ser exclusivo de cada usuário.\n Somente o token de usuário/participante que cadastrou a mensagem pode atualizar/alterar a mensagem."
+        required: true
       - in: "body"
         name: "body"
         description: ""
@@ -582,6 +663,11 @@ paths:
       produces:
       - "application/json"
       parameters:
+      - in: "header"
+        type: "string"
+        name: "token"
+        description: "Deve ser o token do usuário que está efetuando a requisição \n O token deve ser exclusivo de cada usuário.\n Qualquer token de usuário válido pode consultar as mensagens de um evento."
+        required: true
       - name: "eventId"
         in: "path"
         description: "Id do Evento que quer retorno"
@@ -622,10 +708,11 @@ paths:
       produces:
       - "application/json"
       parameters:
-      - name: "api_key"
-        in: "header"
-        required: false
+      - in: "header"
         type: "string"
+        name: "token"
+        description: "Deve ser o token do usuário que está efetuando a requisição \n O token deve ser exclusivo de cada usuário.\n Somente o token de usuário/participante que cadastrou a mensagem pode excluir/deletar a mensagem."
+        required: true
       - name: "msgId"
         in: "path"
         description: "Id da mensagem que deseja deletar"
@@ -649,7 +736,12 @@ paths:
       - "application/json"
       produces:
       - "application/json"
-      parameters: []
+      parameters: 
+      - in: "header"
+        type: "string"
+        name: "token"
+        description: "Deve ser o token do usuário que está efetuando a requisição \n O token deve ser exclusivo de cada usuário. \n Qualquer token de usuário válido pode consultar os tipos de evento"
+        required: true
       responses:
         200:
           description: "Sucesso"
@@ -808,7 +900,6 @@ definitions:
       sex:
         type: "string"
     example:
-      password: "password"
       sex: "sex"
       id: 0
       birthdate: "2019-11-07T12:00:00.000Z"
